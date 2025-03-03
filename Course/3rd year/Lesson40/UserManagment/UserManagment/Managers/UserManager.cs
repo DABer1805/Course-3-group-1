@@ -1,40 +1,41 @@
 ﻿using UserManagment.Models;
+using UserManagment.Services;
 
 namespace UserManagment.Managers;
 
-public class UserManager
+public class UserService : IUserService
 {
-    private List<User> users = new List<User>();
+    private readonly List<User> _users = new List<User>();
+    private readonly IEmailService _emailService;
+
+    public UserService(IEmailService emailService)
+    {
+        _emailService = emailService;
+    }
 
     public void AddUser(User user)
     {
         // Добавление пользователя
-        users.Add(user);
-        SendWelcomeEmail(user.Email);
+        _users.Add(user);
+        _emailService.SendWelcomeEmail(user.Email);
     }
 
     public void DeleteUser(int userId)
     {
         // Удаление пользователя
-        var user = users.FirstOrDefault(u => u.Id == userId);
-        if (user != null) users.Remove(user);
+        var user = _users.FirstOrDefault(u => u.Id == userId);
+        if (user != null) _users.Remove(user);
     }
 
     public User GetUser(int userId)
     {
         // Получение пользователя
-        return users.FirstOrDefault(u => u.Id == userId);
+        return _users.FirstOrDefault(u => u.Id == userId);
     }
 
-    public IEnumerable<User> GetAllUsers()
+    public string GetAllUsers()
     {
         // Получение всех пользователей
-        return users;
-    }
-
-    private void SendWelcomeEmail(string email)
-    {
-        // Логика отправки email
-        Console.WriteLine($"Sending welcome email to {email}");
+        return string.Join("<br/>", _users.Select(u => $"User: {u.Username}, Email: {u.Email}"));
     }
 }
